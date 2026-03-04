@@ -1,0 +1,114 @@
+╔══════════════════════════════════════════════════════════════╗
+║          ORDER MANAGEMENT - QUICK START GUIDE               ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 BƯỚC 1: CẬP NHẬT DATABASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Chạy file: database_updates.sql
+
+HOẶC chạy 2 lệnh sau:
+  ALTER TABLE Orders ADD cancel_reason NVARCHAR(500);
+  ALTER TABLE Orders ADD return_status NVARCHAR(50);
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 BƯỚC 2: BUILD & RUN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Clean & Build Project
+2. Deploy to Server
+3. Start Server
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ BƯỚC 3: TEST CHỨC NĂNG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEST USER - HỦY ĐON:
+────────────────────
+1. Login user thường
+2. Tìm đơn status = "Chờ xác nhận"
+3. Click "Hủy đơn" → Chọn lý do
+4. Xác nhận → Check status = "Đã hủy"
+
+TEST USER - HOÀN TRẢ:
+────────────────────
+1. Login user thường
+2. Tìm đơn status = "Hoàn tất"
+3. Click "Hoàn trả"
+4. Xác nhận → Check return_status = "Đang chờ phê duyệt"
+
+TEST ADMIN - PHÊ DUYỆT:
+────────────────────
+1. Login admin
+2. Tìm đơn có return_status = "Đang chờ phê duyệt"
+3. Click "Duyệt trả" → Xác nhận
+4. Check return_status = "Được phê duyệt"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 QUY TẮC QUAN TRỌNG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+HỦY ĐƠN:
+  ✓ CHỈ khi status = "Chờ xác nhận"
+  ✓ BẮT BUỘC chọn lý do
+  ✓ Nếu chọn "Khác" → nhập text
+
+HOÀN TRẢ:
+  ✓ CHỈ khi status = "Hoàn tất"
+  ✓ CHỈ khi chưa có return_status
+  ✓ Cần admin phê duyệt
+
+PHÊ DUYỆT (ADMIN):
+  ✓ CHỈ admin thấy nút
+  ✓ CHỈ khi return_status = "Đang chờ phê duyệt"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 FILES ĐÃ THAY ĐỔI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ database_updates.sql          (NEW)
+✓ model/Orders.java             (UPDATED)
+✓ DAO/OrdersDAO.java            (UPDATED)
+✓ Controller/OrdersServlet.java (UPDATED)
+✓ orders/orders.jsp             (UPDATED)
+✓ ORDER_MANAGEMENT_GUIDE.md     (NEW)
+✓ QUICK_START.txt               (NEW)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 SQL TEST QUERIES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+-- Xem tất cả đơn hàng
+SELECT id, name, status, cancel_reason, return_status 
+FROM Orders ORDER BY updated_at DESC;
+
+-- Tạo đơn test hủy
+INSERT INTO Orders (dateBuy, name, phone, address, username, total, status)
+VALUES (GETDATE(), N'Test User', '0909999999', N'HCM', 'testuser', 100000, N'Chờ xác nhận');
+
+-- Tạo đơn test hoàn trả
+INSERT INTO Orders (dateBuy, name, phone, address, username, total, status)
+VALUES (GETDATE(), N'Test User', '0909999999', N'HCM', 'testuser', 200000, N'Hoàn tất');
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🐛 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Không thấy nút "Hủy đơn"?
+  → Check status phải = "Chờ xác nhận"
+
+Không thấy nút "Hoàn trả"?
+  → Check status = "Hoàn tất"
+  → Check return_status = NULL
+
+Admin không thấy nút "Duyệt trả"?
+  → Check return_status = "Đang chờ phê duyệt"
+  → Check đăng nhập = admin
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ HOÀN THÀNH!
+Đọc file ORDER_MANAGEMENT_GUIDE.md để biết chi tiết đầy đủ.

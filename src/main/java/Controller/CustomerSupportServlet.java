@@ -4,9 +4,14 @@
  */
 package Controller;
 
+
 import dao.CustomerSupportDAO;
+import dao.OrdersDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -130,17 +135,51 @@ public class CustomerSupportServlet extends HttpServlet {
             boolean success = supportDAO.addSupportRequest(support);
 
             if (success) {
-                request.setAttribute("message", "success");
+                // Cập nhật trạng thái đơn hàng thành "Đang chờ phê duyệt"
+                OrdersDAO ordersDAO = new OrdersDAO();
+                boolean orderUpdated = false;
+                try {
+                    orderUpdated = ordersDAO.requestReturn(orderId);
+                    if (!orderUpdated) {
+                        Logger.getLogger(CustomerSupportServlet.class.getName()).log(Level.WARNING,
+                                "Order {0} status was not updated to ''Đang chờ phê duyệt''", orderId);
+                        request.setAttribute("message", "Gửi yêu cầu thành công nhưng không thể cập nhật trạng thái đơn hàng!");
+                        request.setAttribute("orderId", orderId);
+                        request.setAttribute("currentUser", user);
+                        request.getRequestDispatcher("/WEB-INF/customerSupport.jsp").forward(request, response);
+                        return;
+                    }
+                } catch (SQLException e) {
+                    Logger.getLogger(CustomerSupportServlet.class.getName()).log(Level.SEVERE,
+                            "Error updating order status for order " + orderId, e);
+                    request.setAttribute("message", "Lỗi khi cập nhật trạng thái đơn hàng: " + e.getMessage());
+                    request.setAttribute("orderId", orderId);
+                    request.setAttribute("currentUser", user);
+                    request.getRequestDispatcher("/WEB-INF/customerSupport.jsp").forward(request, response);
+                    return;
+                }
+
+                // Always redirect to orders page with success message, regardless of order status update
+                response.sendRedirect(request.getContextPath() + "/orders?message=returnSuccess");
+                return;
             } else {
                 request.setAttribute("message", "Gửi yêu cầu thất bại!");
+                request.setAttribute("orderId", orderId);
+                request.setAttribute("currentUser", user);
+                request.getRequestDispatcher("/WEB-INF/customerSupport.jsp").forward(request, response);
+                return;
             }
 
-            request.setAttribute("orderId", orderId);
+        } catch (NumberFormatException e) {
+            Logger.getLogger(CustomerSupportServlet.class.getName()).log(Level.SEVERE,
+                    "Number format exception in addSupportRequest", e);
+            request.setAttribute("message", "Dữ liệu không hợp lệ!");
             request.setAttribute("currentUser", user);
             request.getRequestDispatcher("/WEB-INF/customerSupport.jsp").forward(request, response);
-
-        } catch (NumberFormatException e) {
-            request.setAttribute("message", "Dữ liệu không hợp lệ!");
+        } catch (Exception e) {
+            Logger.getLogger(CustomerSupportServlet.class.getName()).log(Level.SEVERE,
+                    "Unexpected error in addSupportRequest", e);
+            request.setAttribute("message", "Có lỗi xảy ra: " + e.getMessage());
             request.setAttribute("currentUser", user);
             request.getRequestDispatcher("/WEB-INF/customerSupport.jsp").forward(request, response);
         }
@@ -152,7 +191,7 @@ public class CustomerSupportServlet extends HttpServlet {
     private void listSupportRequests(HttpServletRequest request, HttpServletResponse response, Registration user)
             throws ServletException, IOException {
         List<CustomerSupport> list;
-        
+
         // Nếu là admin, xem tất cả; nếu là user, chỉ xem của mình
         if (user.isIsAdmin()) {
             list = supportDAO.getAllSupportRequests();

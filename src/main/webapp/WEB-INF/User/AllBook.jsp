@@ -32,6 +32,18 @@
                         <div id="tg-content" class="tg-content">
                             <div class="tg-products">
 
+                                <!-- THÔNG BÁO KẾT QUẢ TÌM KIẾM -->
+                                <c:if test="${not empty keyword}">
+                                    <div class="alert alert-info" style="margin-bottom: 20px;">
+                                        <i class="fa fa-search"></i> 
+                                        Kết quả tìm kiếm cho: <strong>"${keyword}"</strong> 
+                                        - Tìm thấy <strong>${fn:length(list)}</strong> sản phẩm
+                                        <a href="${pageContext.request.contextPath}/ab" class="btn btn-sm btn-default" style="margin-left: 10px;">
+                                            <i class="fa fa-times"></i> Xóa tìm kiếm
+                                        </a>
+                                    </div>
+                                </c:if>
+
                                 <!-- FORM SẮP XẾP -->
                                 <div class="tg-refinesearch mb-3">
                                     <form class="tg-formtheme tg-formsortshoitems" action="ab">
@@ -75,8 +87,8 @@
                                                 </ul>
                                                 <div class="tg-booktitle">
                                                     <h4 style="height: 40px; font-weight: bold;">
-                                                        <a href="#" style="text-align: center; color: #333; text-decoration: none;">
-                                                            <%= b.getName_product()%>
+                                                        <a href="http://localhost:8080/Lib/ProductDetail?productId=<%=b.getSku_product()%>" style="text-align: center; color: #333; text-decoration: none;">
+                                                            <%= b.getName_product()%>        
                                                         </a>
                                                     </h4>
 
@@ -92,9 +104,9 @@
                                                 </span>
 
                                                 <span class="tg-bookprice d-block"><ins><%= String.format("%,.0f", b.getPrice_product())%> $</ins></span>
-                                                <a class="tg-btn tg-btnstyletwo mt-2" href="add-to-cart?sku=<%= b.getSku_product()%>">
+                                                <a class="tg-btn tg-btnstyletwo mt-2" >
                                                     <i class="fa fa-shopping-basket"></i>
-                                                    <em>Thêm Vào Giỏ</em>
+                                                    <em class="quan1" data-sku="<%=b.getSku_product()%>" style="cursor: pointer">Thêm Vào Giỏ</em>
                                                 </a>
                                             </div>
                                         </div>
@@ -103,14 +115,109 @@
                                         }
                                     } else {
                                     %>
-                                    <div class="col-12 text-center">
-                                        <p>Không có sản phẩm nào.</p>
+                                    <div class="col-12 text-center" style="padding: 60px 20px;">
+                                        <c:choose>
+                                            <c:when test="${not empty keyword}">
+                                                <div class="alert alert-warning">
+                                                    <i class="fa fa-exclamation-triangle fa-3x" style="margin-bottom: 15px;"></i>
+                                                    <h3>Không tìm thấy kết quả</h3>
+                                                    <p>Không tìm thấy sản phẩm nào khớp với từ khóa <strong>"${keyword}"</strong></p>
+                                                    <p>Vui lòng thử lại với từ khóa khác hoặc 
+                                                        <a href="${pageContext.request.contextPath}/ab" class="btn btn-primary">
+                                                            <i class="fa fa-home"></i> Xem tất cả sản phẩm
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <p>Không có sản phẩm nào.</p>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
                                     <% }%>
+                                   
+                                    <!-- 🌿 Pagination -->
+                                    <div class="col-xs-12" style="margin-top: 30px;">
+                                        <c:if test="${not empty totalPages and totalPages > 0}">
+                                    <style>
+                                        .pagination {
+                                            display: flex;
+                                            justify-content: center;
+                                            gap: 8px;
+                                            list-style: none;
+                                            padding-left: 0;
+                                            margin-top: 30px;
+                                        }
+                                        .pagination .page-link {
+                                            color: #4CAF50;
+                                            border: 1px solid #d9d9d9;
+                                            border-radius: 50%;
+                                            padding: 8px 15px;
+                                            text-decoration: none;
+                                            background-color: #fff;
+                                            transition: all 0.2s ease-in-out;
+                                            font-weight: 500;
+                                        }
+                                        .pagination .page-link:hover {
+                                            background-color: #e9f5ec;
+                                            border-color: #4CAF50;
+                                            color: #4CAF50;
+                                        }
+                                        .pagination .active .page-link {
+                                            background-color: #4CAF50;
+                                            color: #fff;
+                                            border-color: #4CAF50;
+                                        }
+                                        .pagination .disabled .page-link {
+                                            color: #ccc;
+                                            pointer-events: none;
+                                            border-color: #eee;
+                                        }
+                                    </style>
+                                    <nav aria-label="Page navigation">
+                                        <ul class="pagination">
+                                            <!-- Nút Previous -->
+                                            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                                                <a class="page-link"
+                                                   href="<c:url value='/ab'>
+                                                       <c:param name='page' value='${currentPage - 1}'/>
+                                                       <c:if test='${not empty keyword}'><c:param name='keyword' value='${keyword}'/></c:if>
+                                                       <c:if test='${not empty type}'><c:param name='type' value='${type}'/></c:if>
+                                                       <c:if test='${not empty sortBy}'><c:param name='sortBy' value='${sortBy}'/></c:if>
+                                                   </c:url>"
+                                                   aria-label="Previous">&laquo;</a>
+                                            </li>
+
+                                            <!-- Các số trang -->
+                                            <c:forEach begin="1" end="${totalPages}" var="i">
+                                                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                                                    <a class="page-link"
+                                                       href="<c:url value='/ab'>
+                                                           <c:param name='page' value='${i}'/>
+                                                           <c:if test='${not empty keyword}'><c:param name='keyword' value='${keyword}'/></c:if>
+                                                           <c:if test='${not empty type}'><c:param name='type' value='${type}'/></c:if>
+                                                           <c:if test='${not empty sortBy}'><c:param name='sortBy' value='${sortBy}'/></c:if>
+                                                       </c:url>">${i}</a>
+                                                </li>
+                                            </c:forEach>
+
+                                            <!-- Nút Next -->
+                                            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                                                <a class="page-link"
+                                                   href="<c:url value='/ab'>
+                                                       <c:param name='page' value='${currentPage + 1}'/>
+                                                       <c:if test='${not empty keyword}'><c:param name='keyword' value='${keyword}'/></c:if>
+                                                       <c:if test='${not empty type}'><c:param name='type' value='${type}'/></c:if>
+                                                       <c:if test='${not empty sortBy}'><c:param name='sortBy' value='${sortBy}'/></c:if>
+                                                   </c:url>"
+                                                   aria-label="Next">&raquo;</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                        </c:if>
+                                    </div>
+
                                 </div>
-
-
-
 
                             </div>
                         </div>
@@ -163,7 +270,6 @@
                                 </ul>
                             </div>
                         </div>
-
 
                     </div>
                 </div>

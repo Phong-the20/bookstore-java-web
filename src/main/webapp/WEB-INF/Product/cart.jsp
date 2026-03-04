@@ -31,8 +31,9 @@
                     <div>
                         <!-- <h2> <span>T?t c? sách  </span> </h2> -->
                         <div>
-                            <th:block th:if="">
-                                <form method="post" th:action="@{/purchase}">
+                            <%-- th:if="" --%>
+                                <form method="get" action="${pageContext.request.contextPath}/orders">
+                                    <input type="hidden" name="view" value="confirm">
                                     <table class="styled-table">
                                         <thead>
 

@@ -309,140 +309,28 @@ public class ProductDAO extends DBContext {
         return list;
     }
 
+    // ⚠️ Method cũ - KHÔNG DÙNG NỮA - Dùng getAllBook(int page) thay thế
+    @Deprecated
     public List<Book> getAllBook() {
-        List<Book> list = new ArrayList<>();
-        String query = """
-        SELECT 
-            p.sku,
-            p.name AS product_name,
-            p.img,
-            p.price AS price_vnd, 
-            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
-            p.description,
-            c.name AS category_name,
-            a.name AS author_name,
-            COALESCE(SUM(od.quantity), 0) AS sold
-        FROM Product p
-        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
-        LEFT JOIN Author a ON pa.author_id = a.id
-        LEFT JOIN Category c ON p.category_id = c.id
-        LEFT JOIN OrderDetails od ON p.sku = od.sku
-        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity,p.description
-        ORDER BY p.sku ASC;
-    """;
-
-        try (PreparedStatement ps = this.getConnection().prepareStatement(query); ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Book b = new Book();
-                b.setSku_product(rs.getString("sku"));
-                b.setName_product(rs.getString("product_name"));
-                b.setImg(rs.getString("img"));
-
-                b.setPrice_product(rs.getDouble("price_vnd"));
-
-                b.setQuantity_product(rs.getInt("remaining_quantity"));
-
-                b.setCategory_name(rs.getString("category_name"));
-                b.setAuthor_name(rs.getString("author_name"));
-                b.setQuantity_orderDetail(rs.getInt("sold"));
-
-                list.add(b);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
+        // Redirect to paginated version with page 1
+        return getAllBook(1);
     }
-    
-    
-    
-    
-    
-    
-    
 
+    @Deprecated
     public List<Book> searchBookByTitle(String title) {
-        List<Book> list = new ArrayList<>();
-        String query = """
-        SELECT 
-            p.sku, p.name AS product_name, p.img,
-            p.price * 26000 AS price_vnd,
-            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
-            c.name AS category_name, a.name AS author_name,
-            COALESCE(SUM(od.quantity), 0) AS sold
-        FROM Product p
-        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
-        LEFT JOIN Author a ON pa.author_id = a.id
-        LEFT JOIN Category c ON p.category_id = c.id
-        LEFT JOIN OrderDetails od ON p.sku = od.sku
-        WHERE p.name LIKE ?
-        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity;
-    """;
-
-        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
-            ps.setString(1, "%" + title + "%");
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Book b = new Book();
-                    b.setSku_product(rs.getString("sku"));
-                    b.setName_product(rs.getString("product_name"));
-                    b.setImg(rs.getString("img"));
-                    b.setPrice_product(rs.getDouble("price_vnd"));
-                    b.setQuantity_product(rs.getInt("remaining_quantity"));
-                    b.setCategory_name(rs.getString("category_name"));
-                    b.setAuthor_name(rs.getString("author_name"));
-                    b.setQuantity_orderDetail(rs.getInt("sold"));
-                    list.add(b);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
+        return searchBookByTitle(title, 1);
     }
 
 // 🔍 Tìm sách theo tên tác giả (gần đúng, không phân biệt hoa thường)
+    @Deprecated
     public List<Book> searchBookByAuthor(String author) {
-        List<Book> list = new ArrayList<>();
-        String query = """
-        SELECT 
-            p.sku, p.name AS product_name, p.img,
-            p.price AS price_vnd,
-            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
-            c.name AS category_name, a.name AS author_name,
-            COALESCE(SUM(od.quantity), 0) AS sold
-        FROM Product p
-        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
-        LEFT JOIN Author a ON pa.author_id = a.id
-        LEFT JOIN Category c ON p.category_id = c.id
-        LEFT JOIN OrderDetails od ON p.sku = od.sku
-        WHERE a.name LIKE ?
-        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity;
-    """;
+        return searchBookByAuthor(author, 1);
+    }
 
-        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
-            // 👇 Thay "=" bằng LIKE + thêm % để tìm gần đúng
-            ps.setString(1, "%" + author + "%");
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Book b = new Book();
-                    b.setSku_product(rs.getString("sku"));
-                    b.setName_product(rs.getString("product_name"));
-                    b.setImg(rs.getString("img"));
-                    b.setPrice_product(rs.getDouble("price_vnd"));
-                    b.setQuantity_product(rs.getInt("remaining_quantity"));
-                    b.setCategory_name(rs.getString("category_name"));
-                    b.setAuthor_name(rs.getString("author_name"));
-                    b.setQuantity_orderDetail(rs.getInt("sold"));
-                    list.add(b);
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
+    // 🔍 Tìm sách theo TÊN SÁCH HOẶC TÊN TÁC GIẢ (Universal Search)
+    @Deprecated
+    public List<Book> searchBooks(String keyword) {
+        return searchBooks(keyword, 1);
     }
 
     /**
@@ -464,79 +352,15 @@ public class ProductDAO extends DBContext {
     }
 
     // 🔽 Sắp xếp theo TÊN (A-Z)
+    @Deprecated
     public List<Book> getBooksSortedByName() {
-        List<Book> list = new ArrayList<>();
-        String query = """
-        SELECT 
-            p.sku, p.name AS product_name, p.img,
-            p.price price_vnd,
-            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
-            c.name AS category_name, a.name AS author_name,
-            COALESCE(SUM(od.quantity), 0) AS sold
-        FROM Product p
-        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
-        LEFT JOIN Author a ON pa.author_id = a.id
-        LEFT JOIN Category c ON p.category_id = c.id
-        LEFT JOIN OrderDetails od ON p.sku = od.sku
-        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity
-        ORDER BY p.name ASC;
-    """;
-
-        try (PreparedStatement ps = getConnection().prepareStatement(query); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Book b = new Book();
-                b.setSku_product(rs.getString("sku"));
-                b.setName_product(rs.getString("product_name"));
-                b.setImg(rs.getString("img"));
-                b.setPrice_product(rs.getDouble("price_vnd"));
-                b.setQuantity_product(rs.getInt("remaining_quantity"));
-                b.setCategory_name(rs.getString("category_name"));
-                b.setAuthor_name(rs.getString("author_name"));
-                b.setQuantity_orderDetail(rs.getInt("sold"));
-                list.add(b);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
+        return getBooksSortedByName(1);
     }
 
 // 🔽 Sắp xếp theo GIÁ (Thấp → Cao)
+    @Deprecated
     public List<Book> getBooksSortedByPrice() {
-        List<Book> list = new ArrayList<>();
-        String query = """
-        SELECT 
-            p.sku, p.name AS product_name, p.img,
-            p.price AS price_vnd,
-            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
-            c.name AS category_name, a.name AS author_name,
-            COALESCE(SUM(od.quantity), 0) AS sold
-        FROM Product p
-        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
-        LEFT JOIN Author a ON pa.author_id = a.id
-        LEFT JOIN Category c ON p.category_id = c.id
-        LEFT JOIN OrderDetails od ON p.sku = od.sku
-        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity
-        ORDER BY p.price ASC;
-    """;
-
-        try (PreparedStatement ps = getConnection().prepareStatement(query); ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Book b = new Book();
-                b.setSku_product(rs.getString("sku"));
-                b.setName_product(rs.getString("product_name"));
-                b.setImg(rs.getString("img"));
-                b.setPrice_product(rs.getDouble("price_vnd"));
-                b.setQuantity_product(rs.getInt("remaining_quantity"));
-                b.setCategory_name(rs.getString("category_name"));
-                b.setAuthor_name(rs.getString("author_name"));
-                b.setQuantity_orderDetail(rs.getInt("sold"));
-                list.add(b);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return list;
+        return getBooksSortedByPrice(1);
     }
 
 // 🔽 Hàm sắp xếp danh sách Product theo tiêu chí
@@ -672,19 +496,459 @@ public class ProductDAO extends DBContext {
         return 0;
     }
 
-//    public static void main(String[] args) {
-//        ProductDAO a = new ProductDAO();
-//        List<Book> book = a.getAllBook();
-//        for (Book o : book) {
-//            System.out.println(o);
-//        }
-//    }
     public static void main(String[] args) {
         ProductDAO dao = new ProductDAO();
-        List<Product> list = dao.getList();
-        for (Product c : list) {
-            System.out.println(c);
+        
+        // Test 1: Lấy tất cả sách
+        System.out.println("=== TEST 1: Get All Books ===");
+        List<Book> allBooks = dao.getAllBook();
+        System.out.println("Total books: " + allBooks.size());
+        for (Book b : allBooks) {
+            System.out.println("SKU: " + b.getSku_product() + 
+                             " | Name: " + b.getName_product() + 
+                             " | Author: " + b.getAuthor_name());
         }
+        
+        // Test 2: Tìm theo tác giả
+        System.out.println("\n=== TEST 2: Search by Author 'james' ===");
+        List<Book> byAuthor = dao.searchBookByAuthor("james");
+        System.out.println("Found: " + byAuthor.size() + " books");
+        for (Book b : byAuthor) {
+            System.out.println("SKU: " + b.getSku_product() + 
+                             " | Name: " + b.getName_product() + 
+                             " | Author: " + b.getAuthor_name());
+        }
+        
+        // Test 3: Universal search
+        System.out.println("\n=== TEST 3: Universal Search 'james' ===");
+        List<Book> universal = dao.searchBooks("james");
+        System.out.println("Found: " + universal.size() + " books");
+        for (Book b : universal) {
+            System.out.println("SKU: " + b.getSku_product() + 
+                             " | Name: " + b.getName_product() + 
+                             " | Author: " + b.getAuthor_name());
+        }
+    }
+
+    // ==================== PAGINATION METHODS ====================
+    
+    /**
+     * Lấy tổng số sách
+     */
+    public int getTotalBooks() {
+        int count = 0;
+        String query = "SELECT COUNT(DISTINCT p.sku) FROM Product p";
+        try (PreparedStatement ps = this.getConnection().prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    /**
+     * Lấy tổng số sách theo tiêu đề
+     */
+    public int getTotalBooksByTitle(String title) {
+        int count = 0;
+        String query = """
+            SELECT COUNT(DISTINCT p.sku)
+            FROM Product p
+            WHERE LOWER(p.name) LIKE LOWER(?)
+        """;
+        try (PreparedStatement ps = this.getConnection().prepareStatement(query)) {
+            ps.setString(1, "%" + title + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    /**
+     * Lấy tổng số sách theo tác giả
+     */
+    public int getTotalBooksByAuthor(String author) {
+        int count = 0;
+        String query = """
+            SELECT COUNT(DISTINCT p.sku)
+            FROM Product p
+            INNER JOIN Product_Author pa ON p.sku = pa.product_sku
+            INNER JOIN Author a ON pa.author_id = a.id
+            WHERE LOWER(a.name) LIKE LOWER(?)
+        """;
+        try (PreparedStatement ps = this.getConnection().prepareStatement(query)) {
+            ps.setString(1, "%" + author + "%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    /**
+     * Lấy tổng số sách theo keyword (tìm cả tên và tác giả)
+     */
+    public int getTotalBooksByKeyword(String keyword) {
+        int count = 0;
+        String query = """
+            SELECT COUNT(DISTINCT p.sku)
+            FROM Product p
+            LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
+            LEFT JOIN Author a ON pa.author_id = a.id
+            WHERE LOWER(p.name) LIKE LOWER(?) OR LOWER(a.name) LIKE LOWER(?)
+        """;
+        try (PreparedStatement ps = this.getConnection().prepareStatement(query)) {
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                count = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    /**
+     * Lấy tất cả sách với phân trang
+     */
+    public List<Book> getAllBook(int page) {
+        List<Book> list = new ArrayList<>();
+        String query = """
+        SELECT 
+            p.sku,
+            p.name AS product_name,
+            p.img,
+            p.price AS price_vnd, 
+            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
+            p.description,
+            c.name AS category_name,
+            a.name AS author_name,
+            COALESCE(SUM(od.quantity), 0) AS sold,
+            pd.id AS detail_id
+        FROM Product p
+        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
+        LEFT JOIN Author a ON pa.author_id = a.id
+        LEFT JOIN Category c ON p.category_id = c.id
+        LEFT JOIN OrderDetails od ON p.sku = od.sku
+        LEFT JOIN productDetail pd ON p.sku = pd.product_sku
+        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity, p.description, pd.id
+        ORDER BY p.sku ASC
+        OFFSET ? ROWS FETCH NEXT 4 ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = this.getConnection().prepareStatement(query)) {
+            ps.setInt(1, (page - 1) * 4); // Bỏ qua (page-1)*12 dòng
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setSku_product(rs.getString("sku"));
+                b.setName_product(rs.getString("product_name"));
+                b.setImg(rs.getString("img"));
+                b.setPrice_product(rs.getDouble("price_vnd"));
+                b.setQuantity_product(rs.getInt("remaining_quantity"));
+                b.setCategory_name(rs.getString("category_name"));
+                b.setAuthor_name(rs.getString("author_name"));
+                b.setQuantity_orderDetail(rs.getInt("sold"));
+                b.setDescription(rs.getString("description"));
+                
+                model.ProductDetail pd = new model.ProductDetail();
+                pd.setId(rs.getInt("detail_id"));
+                b.setProductDetail(pd);
+
+                list.add(b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Tìm kiếm sách theo tiêu đề với phân trang
+     */
+    public List<Book> searchBookByTitle(String title, int page) {
+        List<Book> list = new ArrayList<>();
+        String query = """
+        SELECT 
+            p.sku, p.name AS product_name, p.img,
+            p.price AS price_vnd,
+            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
+            p.description,
+            c.name AS category_name, a.name AS author_name,
+            COALESCE(SUM(od.quantity), 0) AS sold,
+            pd.id AS detail_id
+        FROM Product p
+        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
+        LEFT JOIN Author a ON pa.author_id = a.id
+        LEFT JOIN Category c ON p.category_id = c.id
+        LEFT JOIN OrderDetails od ON p.sku = od.sku
+        LEFT JOIN productDetail pd ON p.sku = pd.product_sku
+        WHERE LOWER(p.name) LIKE LOWER(?)
+        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity, p.description, pd.id
+        ORDER BY p.sku ASC
+        OFFSET ? ROWS FETCH NEXT 4 ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
+            ps.setString(1, "%" + title + "%");
+            ps.setInt(2, (page - 1) * 4);
+            
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setSku_product(rs.getString("sku"));
+                b.setName_product(rs.getString("product_name"));
+                b.setImg(rs.getString("img"));
+                b.setPrice_product(rs.getDouble("price_vnd"));
+                b.setQuantity_product(rs.getInt("remaining_quantity"));
+                b.setCategory_name(rs.getString("category_name"));
+                b.setAuthor_name(rs.getString("author_name"));
+                b.setQuantity_orderDetail(rs.getInt("sold"));
+                b.setDescription(rs.getString("description"));
+                
+                model.ProductDetail pd = new model.ProductDetail();
+                pd.setId(rs.getInt("detail_id"));
+                b.setProductDetail(pd);
+                
+                list.add(b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Tìm kiếm sách theo tác giả với phân trang
+     */
+    public List<Book> searchBookByAuthor(String author, int page) {
+        List<Book> list = new ArrayList<>();
+        String query = """
+        SELECT 
+            p.sku, p.name AS product_name, p.img,
+            p.price AS price_vnd,
+            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
+            p.description,
+            c.name AS category_name, a.name AS author_name,
+            COALESCE(SUM(od.quantity), 0) AS sold,
+            COALESCE(pd.id, 0) AS detail_id
+        FROM Product p
+        INNER JOIN Product_Author pa ON p.sku = pa.product_sku
+        INNER JOIN Author a ON pa.author_id = a.id
+        LEFT JOIN Category c ON p.category_id = c.id
+        LEFT JOIN OrderDetails od ON p.sku = od.sku
+        LEFT JOIN productDetail pd ON p.sku = pd.product_sku
+        WHERE LOWER(a.name) LIKE LOWER(?)
+        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity, p.description, pd.id
+        ORDER BY p.sku ASC
+        OFFSET ? ROWS FETCH NEXT 4 ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
+            ps.setString(1, "%" + author + "%");
+            ps.setInt(2, (page - 1) * 4);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setSku_product(rs.getString("sku"));
+                b.setName_product(rs.getString("product_name"));
+                b.setImg(rs.getString("img"));
+                b.setPrice_product(rs.getDouble("price_vnd"));
+                b.setQuantity_product(rs.getInt("remaining_quantity"));
+                b.setCategory_name(rs.getString("category_name"));
+                b.setAuthor_name(rs.getString("author_name"));
+                b.setQuantity_orderDetail(rs.getInt("sold"));
+                b.setDescription(rs.getString("description"));
+                
+                model.ProductDetail pd = new model.ProductDetail();
+                pd.setId(rs.getInt("detail_id"));
+                b.setProductDetail(pd);
+                
+                list.add(b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Tìm kiếm sách theo keyword với phân trang
+     */
+    public List<Book> searchBooks(String keyword, int page) {
+        List<Book> list = new ArrayList<>();
+        String query = """
+        SELECT 
+            p.sku, p.name AS product_name, p.img,
+            p.price AS price_vnd,
+            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
+            p.description,
+            c.name AS category_name, a.name AS author_name,
+            COALESCE(SUM(od.quantity), 0) AS sold,
+            COALESCE(pd.id, 0) AS detail_id
+        FROM Product p
+        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
+        LEFT JOIN Author a ON pa.author_id = a.id
+        LEFT JOIN Category c ON p.category_id = c.id
+        LEFT JOIN OrderDetails od ON p.sku = od.sku
+        LEFT JOIN productDetail pd ON p.sku = pd.product_sku
+        WHERE LOWER(p.name) LIKE LOWER(?) OR LOWER(a.name) LIKE LOWER(?)
+        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity, p.description, pd.id
+        ORDER BY sold DESC
+        OFFSET ? ROWS FETCH NEXT 4 ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setInt(3, (page - 1) * 4);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setSku_product(rs.getString("sku"));
+                b.setName_product(rs.getString("product_name"));
+                b.setImg(rs.getString("img"));
+                b.setPrice_product(rs.getDouble("price_vnd"));
+                b.setQuantity_product(rs.getInt("remaining_quantity"));
+                b.setCategory_name(rs.getString("category_name"));
+                b.setAuthor_name(rs.getString("author_name"));
+                b.setQuantity_orderDetail(rs.getInt("sold"));
+                b.setDescription(rs.getString("description"));
+                
+                model.ProductDetail pd = new model.ProductDetail();
+                pd.setId(rs.getInt("detail_id"));
+                b.setProductDetail(pd);
+                
+                list.add(b);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error in searchBooks: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Lấy sách sắp xếp theo tên với phân trang
+     */
+    public List<Book> getBooksSortedByName(int page) {
+        List<Book> list = new ArrayList<>();
+        String query = """
+        SELECT 
+            p.sku, p.name AS product_name, p.img,
+            p.price AS price_vnd,
+            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
+            p.description,
+            c.name AS category_name, a.name AS author_name,
+            COALESCE(SUM(od.quantity), 0) AS sold,
+            pd.id AS detail_id
+        FROM Product p
+        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
+        LEFT JOIN Author a ON pa.author_id = a.id
+        LEFT JOIN Category c ON p.category_id = c.id
+        LEFT JOIN OrderDetails od ON p.sku = od.sku
+        LEFT JOIN productDetail pd ON p.sku = pd.product_sku
+        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity, p.description, pd.id
+        ORDER BY p.name ASC
+        OFFSET ? ROWS FETCH NEXT 4 ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
+            ps.setInt(1, (page - 1) * 4);
+            
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setSku_product(rs.getString("sku"));
+                b.setName_product(rs.getString("product_name"));
+                b.setImg(rs.getString("img"));
+                b.setPrice_product(rs.getDouble("price_vnd"));
+                b.setQuantity_product(rs.getInt("remaining_quantity"));
+                b.setCategory_name(rs.getString("category_name"));
+                b.setAuthor_name(rs.getString("author_name"));
+                b.setQuantity_orderDetail(rs.getInt("sold"));
+                b.setDescription(rs.getString("description"));
+                
+                model.ProductDetail pd = new model.ProductDetail();
+                pd.setId(rs.getInt("detail_id"));
+                b.setProductDetail(pd);
+                
+                list.add(b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * Lấy sách sắp xếp theo giá với phân trang
+     */
+    public List<Book> getBooksSortedByPrice(int page) {
+        List<Book> list = new ArrayList<>();
+        String query = """
+        SELECT 
+            p.sku, p.name AS product_name, p.img,
+            p.price AS price_vnd,
+            p.quantity - COALESCE(SUM(od.quantity), 0) AS remaining_quantity,
+            p.description,
+            c.name AS category_name, a.name AS author_name,
+            COALESCE(SUM(od.quantity), 0) AS sold,
+            pd.id AS detail_id
+        FROM Product p
+        LEFT JOIN Product_Author pa ON p.sku = pa.product_sku
+        LEFT JOIN Author a ON pa.author_id = a.id
+        LEFT JOIN Category c ON p.category_id = c.id
+        LEFT JOIN OrderDetails od ON p.sku = od.sku
+        LEFT JOIN productDetail pd ON p.sku = pd.product_sku
+        GROUP BY p.sku, p.name, p.img, c.name, a.name, p.price, p.quantity, p.description, pd.id
+        ORDER BY p.price ASC
+        OFFSET ? ROWS FETCH NEXT 4 ROWS ONLY
+    """;
+
+        try (PreparedStatement ps = getConnection().prepareStatement(query)) {
+            ps.setInt(1, (page - 1) * 4);
+            
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Book b = new Book();
+                b.setSku_product(rs.getString("sku"));
+                b.setName_product(rs.getString("product_name"));
+                b.setImg(rs.getString("img"));
+                b.setPrice_product(rs.getDouble("price_vnd"));
+                b.setQuantity_product(rs.getInt("remaining_quantity"));
+                b.setCategory_name(rs.getString("category_name"));
+                b.setAuthor_name(rs.getString("author_name"));
+                b.setQuantity_orderDetail(rs.getInt("sold"));
+                b.setDescription(rs.getString("description"));
+                
+                model.ProductDetail pd = new model.ProductDetail();
+                pd.setId(rs.getInt("detail_id"));
+                b.setProductDetail(pd);
+                
+                list.add(b);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
 }

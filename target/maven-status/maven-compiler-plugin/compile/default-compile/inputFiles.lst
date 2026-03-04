@@ -1,6 +1,5 @@
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\com\mycompany\lib\JakartaRestConfiguration.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\com\mycompany\lib\resources\JakartaEE11Resource.java
-C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\AllBook.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\AllBookServlet.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\AuthorsServlet.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\Book_Manager.java
@@ -12,6 +11,8 @@ C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\Custom
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\CutomerServlet.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\LoginServlet.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\LogoutServlet.java
+C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\OrderDetailsServlet.java
+C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\OrdersServlet.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\ProductDetailSerVlet.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\ProfileServlet.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\Controller\PromotionServlet.java
@@ -22,7 +23,8 @@ C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\CartDAO.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\CategoryDao.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\CustomerDAO.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\CustomerSupportDAO.java
-C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\HomeDAO.java
+C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\OrderDetailsDAO.java
+C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\OrdersDAO.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\ProductDAO.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\ProductDetailDao.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\DAO\PromotionDao.java
@@ -37,6 +39,8 @@ C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\Cart.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\CartItem.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\Category.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\CustomerSupport.java
+C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\OrderDetails.java
+C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\Orders.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\Product.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\ProductDetail.java
 C:\Users\ASUS\Downloads\Final_Project_PRJ301_GR4\src\main\java\model\Promotion.java

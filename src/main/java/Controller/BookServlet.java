@@ -4,8 +4,7 @@
  */
 package Controller;
 
-
-import dao.HomeDAO;
+import dao.ProductDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -37,9 +36,9 @@ public class BookServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HomeDAO dao = new HomeDAO();
-        List<Book> list = dao.getTop6Books();
-        request.setAttribute("bookList", list);
+        ProductDAO dao = new ProductDAO();
+        List<Book> bookList = dao.getAllBook();
+        request.setAttribute("bookList", bookList);
         request.getRequestDispatcher("/WEB-INF/home.jsp").forward(request, response);
     }
 

@@ -32,7 +32,8 @@
 <div class="tg-sectionspace tg-haslayout" style="padding-top: 50px;">
     <div class="container">
         <div class="row">
-            <form action="confirm" method="post">
+            <form action="orders" method="post">
+                <input type="hidden" name="action" value="confirm">
                 <div id="tg-twocolumns" class="tg-twocolumns">
                     
                     <!-- Right Column: Order Info -->
@@ -48,13 +49,13 @@
                                     <th>Tạm tính</th>
                                 </tr>
 
-                                <c:forEach var="detail" items="${cartInfo.cartDetails}" varStatus="status">
+                                <c:forEach var="item" items="${cartList}" varStatus="status">
                                     <tr class="active-row">
                                         <td>${status.index + 1}</td>
-                                        <td>${detail.book.title}</td>
-                                        <td>${detail.quantity}</td>
-                                        <td style="font-size:15px;">${detail.book.price} VNĐ</td>
-                                        <td>${detail.amount} $</td>
+                                        <td>${item.product.bookName}</td>
+                                        <td>${item.quantity}</td>
+                                        <td style="font-size:15px;">${item.product.price} VNĐ</td>
+                                        <td>${item.product.price * item.quantity} VNĐ</td>
                                     </tr>
                                 </c:forEach>
                             </table>
@@ -64,7 +65,8 @@
                             <td colspan="7">
                                 <h5 style="color: black; text-align: left;">
                                     Tổng tiền :
-                                    <span style="color: green;">${cartInfo.amount} $</span>
+                                    <span style="color: green;">${total} VNĐ</span>
+                                    <input type="hidden" name="total" value="${total}">
                                 </h5>
                             </td>
                         </tr>
@@ -101,4 +103,4 @@
     </div>
 </div>
 
-                                    <%@include file="../includes/footer.jsp" %>
+<%@include file="../includes/footer.jsp" %>

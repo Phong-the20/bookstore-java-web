@@ -1,4 +1,4 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="model.Registration"%>
 <%@page import="model.CustomerSupport"%>
 <%@page import="java.util.List"%>
@@ -56,6 +56,7 @@
                             <form action="${pageContext.request.contextPath}/support" method="post" id="supportForm">
                                 <input type="hidden" name="action" value="add"/>
                                 <input type="hidden" name="orderId" value="<%= orderId != null ? orderId : "" %>"/>
+                                <input type="hidden" id="totalRefundHidden" name="totalRefund" value="0"/>
 
                                 <div class="form-group" style="margin-bottom: 20px;">
                                     <label><span style="color: red;">*</span><strong>Order ID</strong></label>
@@ -77,15 +78,16 @@
                                 </div>
 
                                 <div class="form-group" style="margin-bottom: 20px;">
-                                    <label for="totalRefund"><span style="color: red;">*</span><strong>Refund Amount</strong></label>
-                                    <input type="text" id="totalRefund" name="totalRefund" class="form-control" 
+                                    <label for="totalRefundDisplay"><span style="color: red;">*</span><strong>Refund Amount</strong></label>
+                                    <input type="text" id="totalRefundDisplay" class="form-control" 
                                            readonly placeholder="Loading..." style="font-weight: bold; color: #28a745;">
                                 </div>
 
                                 <div class="form-group" style="margin-bottom: 20px;">
-                                    <label for="description"><strong>Description</strong></label>
+                                    <label for="description"><span style="color: red;">*</span><strong>Description</strong></label>
                                     <textarea id="description" name="description" rows="4" class="form-control" 
-                                              placeholder="Please describe your issue in detail..."></textarea>
+                                              placeholder="Please describe your issue in detail..." required></textarea>
+                                    <small class="text-muted">Vui lòng nhập ít nhất 10 ký tự</small>
                                 </div>
 
                                 <div class="form-group" style="margin-bottom: 20px;">
@@ -118,13 +120,16 @@ window.addEventListener('load', function() {
             .then(res => res.text())
             .then(data => {
                 const total = parseFloat(data) || 0;
-                document.getElementById('totalRefund').value = '$' + total.toFixed(2);
+                document.getElementById('totalRefundDisplay').value = '$' + total.toFixed(2);
+                document.getElementById('totalRefundHidden').value = total;
             })
             .catch(() => {
-                document.getElementById('totalRefund').value = '$0.00';
+                document.getElementById('totalRefundDisplay').value = '$0.00';
+                document.getElementById('totalRefundHidden').value = '0';
             });
     } else {
-        document.getElementById('totalRefund').value = '$0.00';
+        document.getElementById('totalRefundDisplay').value = '$0.00';
+        document.getElementById('totalRefundHidden').value = '0';
     }
 });
 
@@ -150,16 +155,33 @@ document.getElementById('supportForm').addEventListener('submit', function(e) {
     
     if (!reason) {
         e.preventDefault();
-        Swal.fire({ icon: 'warning', title: 'Missing Information', text: 'Please select a reason!' });
+        Swal.fire({ 
+            icon: 'warning', 
+            title: 'Thiếu thông tin', 
+            text: 'Vui lòng chọn lý do!',
+            confirmButtonText: 'OK'
+        });
         return false;
     }
     
-    if (description.trim().length > 0 && description.trim().length < 10) {
+    if (description.trim().length === 0) {
         e.preventDefault();
         Swal.fire({ 
             icon: 'warning', 
-            title: 'Description Too Short', 
-            text: 'Please provide more details (at least 10 characters)!' 
+            title: 'Thiếu mô tả', 
+            text: 'Vui lòng nhập mô tả chi tiết!',
+            confirmButtonText: 'OK'
+        });
+        return false;
+    }
+    
+    if (description.trim().length < 10) {
+        e.preventDefault();
+        Swal.fire({ 
+            icon: 'warning', 
+            title: 'Mô tả quá ngắn', 
+            text: 'Vui lòng nhập ít nhất 10 ký tự!',
+            confirmButtonText: 'OK'
         });
         return false;
     }

@@ -4,6 +4,7 @@
  */
 package Controller;
 
+
 import dao.CartDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -45,6 +46,7 @@ public class CartServlet extends HttpServlet {
 
             List<CartItem> cartItem = cartDao.cartAll(cart.getId());//co ai thi tim list cartItem
             request.setAttribute("listCartItem", cartItem);//set vao vang vao cart.jsp
+            session.setAttribute("listCartItem", cartItem); // Lưu vào session để dùng cho đặt hàng
             request.getRequestDispatcher("/WEB-INF/Product/cart.jsp").forward(request, response);
 
         } else {
@@ -99,7 +101,7 @@ public class CartServlet extends HttpServlet {
 
                 //kiem tra xem san pham da ton tai trong gio hang chua
                 //neu da co thi cong don(update) vao quantity
-                if (status.equals("update")) {
+                if (status != null && status.equals("update")) {
                     //test xem có chạy ko
 //                    System.out.println("✅ doPut() has been called!"); // in ra console server
 //                    response.setContentType("text/plain;charset=UTF-8");
@@ -110,7 +112,7 @@ public class CartServlet extends HttpServlet {
 //                    System.out.println("sku = " + request.getParameter("sku"));                    
                     cartDAO.updateCartItem(cart.getId(), sku, Integer.parseInt(quantity));
                     cartDAO.updateCart(cart.getUsername());
-                } else if (status.equals("delete")) {
+                } else if (status != null && status.equals("delete")) {
 
 //                    response.setContentType("text/plain;charset=UTF-8");
 //                    response.getWriter().write("Server received PUT request");
@@ -120,7 +122,7 @@ public class CartServlet extends HttpServlet {
                     } else {
                         System.out.println("delete fails" + cart.getId() + sku); // in ra console server
                     }
-                } else if (status.equals("add")) {
+                } else if (status != null && status.equals("add")) {
                     if (cartItem != null) {
                         int addQuantity = cartItem.getQuantity() + Integer.parseInt(quantity);
                         int rs = cartDAO.updateCartItem(cart.getId(), sku, addQuantity);
@@ -144,6 +146,11 @@ public class CartServlet extends HttpServlet {
                             System.out.println("Create and Add succesfull 😊");
                         }
                     }
+                } else {
+                    // Trường hợp status null hoặc không hợp lệ
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.getWriter().write("Invalid or missing 'status' parameter. Expected: 'add', 'update', or 'delete'");
+                    System.out.println("⚠️ Invalid status parameter: " + status);
                 }
             } else {
                 response.getWriter().write("Loi cart ko ton tai, hien chua bt cach thong bao 😓");

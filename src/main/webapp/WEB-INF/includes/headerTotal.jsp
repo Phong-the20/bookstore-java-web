@@ -28,6 +28,9 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/responsive.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+
+    
 </head>
 <body class="tg-home tg-homeone">
 
@@ -49,8 +52,8 @@
                                 <ul class="dropdown-menu list-unstyled" style="list-style: none; padding-left: 0;">
                                     <li style="list-style: none; margin-bottom:10px;"><a href="profile"><i class="fa-solid fa-user"></i> Account information</a></li>
                                         <% if (!isAdmin) { %>
-                                    <li style="list-style: none; margin-bottom:10px;"><a href="orders.jsp"><i class="fa-solid fa-cart-shopping"></i> Purchase information</a></li>
-                                            <% } %>
+                                    <li style="list-style: none; margin-bottom:10px;"><a href="${pageContext.request.contextPath}/orders"><i class="fa-solid fa-cart-shopping"></i> Purchase information</a></li>
+                                        <% } %>
                                     <li style="list-style: none; margin-bottom:10px;"><a href="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
                                 </ul>
                             </div>
@@ -74,7 +77,7 @@
                                     <%-- <a href="${pageContext.request.contextPath}/Cart" id="tg-minicart" class="tg-btnthemedropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">--%>
                                     <a href="${pageContext.request.contextPath}/cart" id="tg-minicart" class="tg-btnthemedropdown" aria-haspopup="true" aria-expanded="false">
 
-                                        <span class="tg-themebadge">7</span>
+<!--                                        <span class="tg-themebadge">7</span>-->
                                         <i class="icon-cart"></i>
                                         <span>$123.00</span>
                                     </a>
@@ -123,9 +126,14 @@
                                 </div>
                             </div>
                             <div class="tg-searchbox">
-                                <form class="tg-formtheme tg-formsearch">
-                                    <fieldset>
-                                        <input type="text" name="search" class="typeahead form-control" placeholder="Search by title, author, keyword, ISBN...">
+                                <form class="tg-formtheme tg-formsearch" action="${pageContext.request.contextPath}/ab" method="get">
+                                    <fieldset style="display: flex; align-items: center; gap: 5px;">
+                                        <input type="text" name="keyword" class="typeahead form-control" placeholder="Search by title, author, keyword..." required style="flex: 1;">
+                                        <select name="type" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                            <option value="">All</option>
+                                            <option value="title">Title</option>
+                                            <option value="author">Author</option>
+                                        </select>
                                         <button type="submit"><i class="icon-magnifier"></i></button>
                                     </fieldset>
                                 </form>
@@ -308,12 +316,9 @@
                                         </li>
                                         <li><a href="ab">AllBook</a></li>
                                         <li><a href="cutomer">Customer</a></li>
-                                        <li><a href="contactus.html">Order</a></li>
+                                        <li><a href="${pageContext.request.contextPath}/orders">Order</a></li>
                                             <% } else { %>
                                         <li><a href="ab">AllBook</a></li>
-                                        <li><a href="support">Support</a></li>
-
-                                  
                                             <% }%>
                                     </ul>
                                 </div>

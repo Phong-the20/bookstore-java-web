@@ -9,27 +9,29 @@ package model;
  * @author ADMIN
  */
 public class Book {
+
     //Lấy từ bảng product 5 thuộc tính: sku, img,name,price,quantity
     private String sku_product;
     private String img;
     private String name_product;
-    private double price_product; 
+    private double price_product;
     private int quantity_product; // số lượng này là số lượng tồn(product) phải trừ số lượng đã bán(orderDetails) qua sku
     private String description;
-    
+
     //Lấy từ bảng category thuộc tính: name
     private String category_name;
-    
+
     //Lấy từ bảng Author thuộc tính: name
     private String author_name;
-    
+
     //Lấy từ bảng orderDetails thuộc tính: quantity
-    private int quantity_orderDetail; 
+    private int quantity_orderDetail;
+    private ProductDetail productDetail;
 
     public Book() {
     }
 
-    public Book(String sku_product, String img, String name_product, double price_product, int quantity_product, String description, String category_name, String author_name, int quantity_orderDetail) {
+    public Book(String sku_product, String img, String name_product, double price_product, int quantity_product, String description, String category_name, String author_name, int quantity_orderDetail, ProductDetail productDetail) {
         this.sku_product = sku_product;
         this.img = img;
         this.name_product = name_product;
@@ -39,6 +41,7 @@ public class Book {
         this.category_name = category_name;
         this.author_name = author_name;
         this.quantity_orderDetail = quantity_orderDetail;
+        this.productDetail = productDetail;
     }
 
     public String getSku_product() {
@@ -113,12 +116,17 @@ public class Book {
         this.quantity_orderDetail = quantity_orderDetail;
     }
 
+    public ProductDetail getProductDetail() {
+        return productDetail;
+    }
+
+    public void setProductDetail(ProductDetail productDetail) {
+        this.productDetail = productDetail;
+    }
+
     @Override
     public String toString() {
         return "Book{" + "sku_product=" + sku_product + ", img=" + img + ", name_product=" + name_product + ", price_product=" + price_product + ", quantity_product=" + quantity_product + ", description=" + description + ", category_name=" + category_name + ", author_name=" + author_name + ", quantity_orderDetail=" + quantity_orderDetail + '}';
     }
 
-    
-    
-    
 }
